@@ -1,3 +1,4 @@
+/*
 const dotenv = require('dotenv').config({
 	path: 'variables.env'
 });
@@ -23,9 +24,8 @@ const server = app.listen(port, () => {
 	console.log(`I am server and my port is ${port}`);
 });
 
-const io = require('./io').initialize(server);
+require('./io').initialize(server);
 const global_socket = require('./io').io();
-// console.log(global_socket)
 
 const heartbeat = () => {
 	const pulse = Math.ceil(Math.random() * (160 - 60) + 60);
@@ -34,6 +34,39 @@ const heartbeat = () => {
 
 setInterval(() => {
 	global_socket.emit('PULSE', heartbeat());
-}, 200);
+}, 3000);
+
+module.exports = app;
+*/
+
+const Koa = require('koa');
+const app = new Koa();
+const logger = require('koa-logger');
+app.use(logger());
+
+const bodyParser = require('koa-body');
+app.use(bodyParser());
+
+app.use(async ctx => {
+	// console.log(Object.keys(ctx));
+	ctx.body = 'hey you'
+});
+
+require('./io').initialize(app);
+const global_socket = require('./io').io();
+console.log(Object.keys(global_socket));
+app.listen(3001, () => {
+	console.log('server has started...');
+});
+
+const heartbeat = () => {
+	const pulse = Math.ceil(Math.random() * (160 - 60) + 60);
+	return pulse;
+};
+
+setInterval(() => {
+	// console.log(Object.keys(io));
+	global_socket.socket.emit('PULSE', heartbeat());
+}, 3000);
 
 module.exports = app;
